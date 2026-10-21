@@ -1,13 +1,13 @@
 # CyberShield — Cybersecurity Monitoring Web Application
 
-CyberShield is a Flask-based cybersecurity project that combines behavioral login tracking, security statistics, URL and QR code analysis, and cybersecurity news in a single web application.
+CyberShield is a Flask-based cybersecurity platform featuring behavioral login tracking, suspicious URL and QR code analysis, and cybersecurity news updates. Built with Python, Flask, and SQLite, it demonstrates login risk assessment and online threat awareness.
 
 ## Features
 
-- **User Authentication:** Provides registration and login functionality.
+- **User Authentication:** Registration and login functionality.
 - **Behavioral Login Tracking:** Records login-related behavioral measurements, including typing speed and key intervals.
 - **Security Dashboard:** Displays login activity, risk scores, and behavioral statistics.
-- **Link and QR Code Analyzer:** Accepts URLs and QR codes for rule-based security analysis.
+- **Link and QR Code Analyzer:** Supports URLs and QR codes for rule-based security analysis.
 - **Cybersecurity News:** Retrieves cybersecurity articles from available RSS feeds.
 - **SQLite Database:** Stores user and login-attempt information.
 
@@ -15,6 +15,7 @@ CyberShield is a Flask-based cybersecurity project that combines behavioral logi
 
 - Python
 - Flask
+- Flask-SQLAlchemy
 - SQLite
 - HTML and CSS
 - JavaScript, where used
@@ -31,9 +32,8 @@ CyberShield/
 │   ├── link_analyzer/
 │   ├── news/
 │   ├── security/
-│   ├── static/
 │   └── templates/
-├── instance/
+├── docs/
 ├── tests/
 ├── run.py
 ├── README.md
@@ -46,10 +46,10 @@ CyberShield/
 2. Clone or download this repository.
 3. Open a terminal in the project directory.
 4. Create and activate a virtual environment.
-5. Install the project's dependencies.
+5. Install the dependencies.
 6. Start the Flask application.
 
-Example commands for Windows PowerShell:
+Example commands for Windows:
 
 ```powershell
 python -m venv venv
@@ -62,7 +62,7 @@ Open `http://127.0.0.1:5000` in your browser.
 
 ## Project Purpose
 
-The purpose of CyberShield is to demonstrate how multiple cybersecurity-related functions can be integrated into one web application. It is an educational project intended for learning and demonstration, not a replacement for professional security monitoring tools.
+CyberShield demonstrates how multiple cybersecurity-related functions can be integrated into one web application. It is an educational project intended for learning and demonstration, not a replacement for professional security monitoring tools.
 
 ## Limitations
 
