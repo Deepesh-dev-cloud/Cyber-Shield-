@@ -1,0 +1,387 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Link & QR Analyser | CyberShield</title>
+
+    <style>
+        :root {
+            --background: #050b14;
+            --card: #0c1727;
+            --border: #1e3550;
+            --blue: #1685ff;
+            --text: #f1f5f9;
+            --muted: #b8c9df;
+            --green: #35d49a;
+            --yellow: #ffb020;
+            --red: #ff5252;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 35px 20px 60px;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .back {
+            display: inline-block;
+            color: #72b9ff;
+            margin-bottom: 20px;
+            text-decoration: none;
+        }
+
+        .back:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            color: #2495ff;
+            font-size: clamp(28px, 4vw, 40px);
+            margin-bottom: 8px;
+        }
+
+        h2 {
+            font-size: 25px;
+            margin-top: 0;
+        }
+
+        h3 {
+            margin-top: 20px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin-bottom: 30px;
+            font-size: 17px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 26px;
+            margin: 22px 0;
+            min-width: 0;
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input,
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 8px;
+            border-radius: 9px;
+            font-size: 16px;
+        }
+
+        input {
+            background: #07111e;
+            color: white;
+            border: 1px solid #30445c;
+        }
+
+        input:focus {
+            outline: 2px solid #1685ff;
+            outline-offset: 2px;
+        }
+
+        input[type="file"] {
+            max-width: 100%;
+        }
+
+        button {
+            background: var(--blue);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s ease;
+        }
+
+        button:hover {
+            background: #0068d9;
+        }
+
+        button:focus-visible {
+            outline: 2px solid white;
+            outline-offset: 3px;
+        }
+
+        .report {
+            border-left: 5px solid var(--blue);
+            overflow-wrap: anywhere;
+        }
+
+        .risk-high {
+            border-left-color: var(--red);
+        }
+
+        .risk-medium {
+            border-left-color: var(--yellow);
+        }
+
+        .risk-low {
+            border-left-color: var(--green);
+        }
+
+        .high {
+            color: var(--red);
+            font-weight: bold;
+        }
+
+        .medium {
+            color: var(--yellow);
+            font-weight: bold;
+        }
+
+        .low {
+            color: var(--green);
+            font-weight: bold;
+        }
+
+        .score {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .notice {
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 8px;
+            background: #101f32;
+            color: #c8ddf8;
+            overflow-wrap: anywhere;
+        }
+
+        .findings li {
+            margin: 10px 0;
+        }
+
+        .disclaimer {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 22px 12px 40px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<main class="container">
+
+    <a class="back" href="/">← Back to CyberShield</a>
+
+    <header>
+        <h1>🔗 Link & QR Analyser</h1>
+        <p class="subtitle">
+            Analyse suspicious URLs and QR codes before visiting them.
+        </p>
+    </header>
+
+    <!-- =========================================
+         URL LINK ANALYSER
+         ========================================= -->
+
+    <section class="card">
+        <h2>🔎 URL Link Analyser</h2>
+
+        <p>
+            Enter a URL to check for potentially suspicious patterns.
+        </p>
+
+        <form
+            action="{{ url_for('link_analyzer.scanner_home') }}"
+            method="POST"
+        >
+            <label for="url">Enter a URL to analyse</label>
+
+            <input
+                id="url"
+                name="url"
+                type="text"
+                placeholder="https://example.com"
+                value="{{ result.url if result and result.url else '' }}"
+                maxlength="2048"
+                autocomplete="url"
+                required
+            >
+
+            <button type="submit">Analyse Link</button>
+        </form>
+    </section>
+
+    <!-- URL ANALYSIS REPORT -->
+
+    {% if result %}
+        <section
+            class="card report
+            {% if result.level == 'High' %}risk-high
+            {% elif result.level == 'Medium' %}risk-medium
+            {% else %}risk-low{% endif %}"
+            aria-live="polite"
+        >
+            <h2>📊 URL Analysis Report</h2>
+
+            {% if result.error %}
+                <p><strong>Unable to analyse:</strong></p>
+                <p>{{ result.error }}</p>
+
+            {% else %}
+                <p>
+                    <strong>Analysed URL:</strong><br>
+                    {{ result.url }}
+                </p>
+
+                <p>
+                    <strong>Risk Level:</strong>
+                    <span class="{{ result.level|lower }}">
+                        {{ result.level }} Risk
+                    </span>
+                </p>
+
+                <p class="score">
+                    {{ result.score }}/100
+                </p>
+
+                <h3>Findings</h3>
+
+                <ul class="findings">
+                    {% for finding in result.findings %}
+                        <li>{{ finding }}</li>
+                    {% endfor %}
+                </ul>
+
+                <p class="disclaimer">
+                    This is a preliminary pattern-based assessment.
+                    A low score does not guarantee that a URL is safe,
+                    and a high score does not prove that it is malicious.
+                </p>
+            {% endif %}
+        </section>
+    {% endif %}
+
+    <!-- =========================================
+         QR CODE ANALYSER
+         ========================================= -->
+
+    <section class="card">
+        <h2>📷 QR Code Analyser</h2>
+
+        <p>
+            Upload a QR code image to extract and analyse its contents.
+        </p>
+
+        <form
+            action="{{ url_for('link_analyzer.scanner_home') }}"
+            method="POST"
+            enctype="multipart/form-data"
+        >
+            <label for="qr">Choose a QR code image</label>
+
+            <input
+                id="qr"
+                name="qr"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                required
+            >
+
+            <button type="submit">Scan QR Code</button>
+        </form>
+
+        {% if qr_message %}
+            <div class="notice" aria-live="polite">
+                <strong>QR Scan Result</strong>
+                <p>{{ qr_message }}</p>
+
+                {% if qr_result %}
+                    <p><strong>Extracted contents:</strong></p>
+
+                    <p style="overflow-wrap: anywhere;">
+                        {{ qr_result }}
+                    </p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- QR URL ANALYSIS REPORT -->
+
+    {% if qr_result and result and not result.error %}
+        <section
+            class="card report
+            {% if result.level == 'High' %}risk-high
+            {% elif result.level == 'Medium' %}risk-medium
+            {% else %}risk-low{% endif %}"
+            aria-live="polite"
+        >
+            <h2>🛡️ QR Destination Analysis</h2>
+
+            <p>
+                <strong>Risk Level:</strong>
+                <span class="{{ result.level|lower }}">
+                    {{ result.level }} Risk
+                </span>
+            </p>
+
+            <p class="score">{{ result.score }}/100</p>
+
+            <h3>Findings</h3>
+
+            <ul class="findings">
+                {% for finding in result.findings %}
+                    <li>{{ finding }}</li>
+                {% endfor %}
+            </ul>
+
+            <p class="disclaimer">
+                The QR destination has been analysed without opening
+                the URL. Always verify destinations before visiting them.
+            </p>
+        </section>
+    {% endif %}
+
+    <footer>
+        CyberShield | Detect · Analyse · Stay Alert
+    </footer>
+
+</main>
+</body>
+</html>

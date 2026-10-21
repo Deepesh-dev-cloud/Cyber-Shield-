@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cybersecurity News | CyberShield</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            background: #050b14;
+            color: #f1f5f9;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: auto;
+        }
+
+        a {
+            color: #72b9ff;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #2495ff;
+            font-size: 34px;
+        }
+
+        .intro {
+            color: #bdcce0;
+            line-height: 1.7;
+        }
+
+        .status {
+            padding: 14px 18px;
+            background: #0c1727;
+            border: 1px solid #1e3550;
+            border-radius: 10px;
+            margin: 22px 0;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit, minmax(280px, 1fr)
+            );
+            gap: 18px;
+        }
+
+        .article {
+            background: #0c1727;
+            border: 1px solid #1e3550;
+            border-radius: 14px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            min-height: 230px;
+        }
+
+        .source {
+            color: #36a0ff;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .article h2 {
+            font-size: 19px;
+            line-height: 1.5;
+        }
+
+        .article p {
+            color: #c1ccdc;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .read-more {
+            display: inline-block;
+            margin-top: auto;
+            padding-top: 12px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .read-more:hover {
+            text-decoration: underline;
+        }
+
+        .empty {
+            padding: 24px;
+            background: #0c1727;
+            border-radius: 12px;
+        }
+
+        footer {
+            margin-top: 35px;
+            border-top: 1px solid #1e3550;
+            padding-top: 20px;
+            color: #9caec4;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 18px;
+            }
+
+            h1 {
+                font-size: 27px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <a class="back" href="/">← Back to CyberShield</a>
+
+        <h1>📰 Cybersecurity News &amp; Updates</h1>
+
+        <p class="intro">
+            Stay informed about cybersecurity threats, vulnerabilities,
+            security advisories and the latest developments.
+        </p>
+
+        <div class="status">
+            <strong>Live RSS news feed</strong>
+            <p>
+                Articles are retrieved from external publishers when
+                you open this page. Availability depends on those feeds.
+            </p>
+            <a href="{{ url_for('news.news_home') }}">
+                ↻ Refresh news
+            </a>
+        </div>
+
+        {% if errors %}
+            <div class="status">
+                Some feeds could not be reached:
+                {{ errors | join(", ") }}.
+                Other available articles are still shown.
+            </div>
+        {% endif %}
+
+        {% if articles %}
+            <section class="news-grid" aria-label="Latest news">
+                {% for article in articles %}
+                    <article class="article">
+                        <div class="source">
+                            {{ article.source }}
+                        </div>
+
+                        <h2>{{ article.title }}</h2>
+
+                        {% if article.published %}
+                            <small>
+                                Published: {{ article.published }}
+                            </small>
+                        {% endif %}
+
+                        {% if article.summary %}
+                            <p>{{ article.summary }}</p>
+                        {% else %}
+                            <p>
+                                Open the original article for the
+                                complete report and security guidance.
+                            </p>
+                        {% endif %}
+
+                        <a
+                            class="read-more"
+                            href="{{ article.link }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Read original article ↗
+                        </a>
+                    </article>
+                {% endfor %}
+            </section>
+        {% else %}
+            <div class="empty">
+                <h2>No news articles could be loaded.</h2>
+                <p>
+                    Check your internet connection and try refreshing.
+                    The news feeds may also be temporarily unavailable.
+                </p>
+            </div>
+        {% endif %}
+
+        <footer>
+            CyberShield · Cybersecurity News &amp; Updates
+            <p>
+                News belongs to its original publishers.
+                Follow their links for full articles and official advice.
+            </p>
+        </footer>
+    </main>
+</body>
+</html>

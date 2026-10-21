@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberShield | Login Result</title>
+    <style>
+        :root { color-scheme: dark; --bg:#07111f; --panel:#0e1d30; --line:#24415e; --blue:#278fff; --cyan:#54d8ee; --text:#f4f8ff; --muted:#a9bbd0; }
+        * { box-sizing:border-box; }
+        body { margin:0; min-height:100vh; display:grid; place-items:center; padding:24px; font-family:Inter,"Segoe UI",Arial,sans-serif; color:var(--text); background:radial-gradient(ellipse at 50% 0%,rgba(39,143,255,.17),transparent 42%),var(--bg); }
+        .card { width:min(720px,100%); padding:clamp(24px,5vw,44px); border:1px solid var(--line); border-radius:20px; background:linear-gradient(145deg,rgba(16,34,57,.98),rgba(8,22,38,.98)); box-shadow:0 24px 80px rgba(0,0,0,.28); }
+        .brand { display:flex; align-items:center; gap:12px; color:#dceeff; font-size:12px; font-weight:800; letter-spacing:1.8px; }
+        .logo { display:grid; place-items:center; width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,#278fff,#1556b7);font-size:22px;letter-spacing:0; }
+        .status { display:inline-flex; align-items:center; gap:8px; margin-top:30px; padding:8px 12px; border-radius:99px; color:#78edc4; border:1px solid #22654f; background:rgba(41,181,129,.1); font-size:11px; font-weight:800; letter-spacing:1px; }
+        h1 { font-size:clamp(30px,5vw,42px); letter-spacing:-1px; margin:16px 0 10px; }
+        .intro { color:var(--muted); line-height:1.7; margin:0 0 28px; }
+        .stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin:24px 0; }
+        .stat { padding:18px; border:1px solid #213b55; border-radius:13px; background:rgba(4,16,29,.45); }
+        .label { color:var(--muted); font-size:12px; margin-bottom:9px; }
+        .value { font-size:24px; font-weight:800; }
+        .sub { color:var(--muted); font-size:12px; margin-top:6px; }
+        .actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:9px; min-height:46px; padding:0 18px; border-radius:10px; text-decoration:none; font-weight:800; font-size:13px; }
+        .primary { color:white; background:linear-gradient(110deg,#278fff,#1769d7); box-shadow:0 9px 25px rgba(23,105,215,.22); }
+        .secondary { color:#d8e8fa; border:1px solid #2a4661; background:#102239; }
+        .note { color:#849bb4; font-size:11px; line-height:1.6; margin-top:24px; }
+        @media(max-width:520px){ .stats{grid-template-columns:1fr;} .actions{flex-direction:column;} .btn{width:100%;} }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <div class="brand"><span class="logo" aria-hidden="true">🛡</span><span>CYBERSHIELD<br><span style="font-size:9px;color:#8ea8c4;letter-spacing:2px">BEHAVIOURAL SECURITY</span></span></div>
+        <div class="status"><span aria-hidden="true">●</span> LOGIN SUCCESSFUL</div>
+        <h1>You're signed in.</h1>
+        <p class="intro">Your login was accepted. You can review the behavioural analysis below or open the full security dashboard for login history and statistics.</p>
+
+        {% if risk %}
+        <div class="stats">
+            <div class="stat">
+                <div class="label">Latest behavioural risk score</div>
+                <div class="value">{{ risk.score }}</div>
+                <div class="sub">Status: {{ risk.status }}</div>
+            </div>
+            {% if baseline %}
+            <div class="stat">
+                <div class="label">Baseline typing speed</div>
+                <div class="value">{{ "%.2f"|format(baseline.avg_wpm) }} <span style="font-size:13px;color:#9fb2c9">WPM</span></div>
+                <div class="sub">Average across previous successful logins</div>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="stat">
+            <div class="label">Behavioural analysis</div>
+            <div class="value" style="font-size:18px">More data needed</div>
+            <div class="sub">Not enough previous typing data to calculate a reliable comparison yet.</div>
+        </div>
+        {% endif %}
+
+        <div class="actions">
+            <a class="btn primary" href="{{ url_for('auth.dashboard') }}">View Security Statistics <span aria-hidden="true">→</span></a>
+            <a class="btn secondary" href="{{ url_for('home') }}">Back to CyberShield Home</a>
+        </div>
+        <p class="note">Behavioural risk scores are experimental signals, not proof of account compromise. Review login history and other evidence before drawing conclusions.</p>
+    </main>
+</body>
+</html>

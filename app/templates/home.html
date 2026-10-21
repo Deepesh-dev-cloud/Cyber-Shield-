@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#07111f">
+    <title>CyberShield | Cybersecurity Command Center</title>
+    <style>
+        :root {
+            --bg: #07111f;
+            --panel: #0d1b2d;
+            --panel-soft: #102239;
+            --line: #203953;
+            --blue: #258bff;
+            --cyan: #45d5f5;
+            --text: #f4f8ff;
+            --muted: #9fb2c9;
+            --green: #45d6a4;
+        }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0; min-height: 100vh; color: var(--text);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            background:
+                radial-gradient(ellipse at 78% 0%, rgba(28, 112, 202, .18), transparent 35%),
+                radial-gradient(ellipse at 0% 45%, rgba(25, 88, 158, .10), transparent 34%),
+                var(--bg);
+        }
+        a { color: inherit; text-decoration: none; }
+        .shell { max-width: 1240px; width: calc(100% - 48px); margin: auto; }
+        .nav-wrap { border-bottom: 1px solid rgba(139, 178, 217, .13); background: rgba(5, 13, 24, .78); }
+        nav { min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+        .brand { display: flex; align-items: center; gap: 12px; font-size: 19px; font-weight: 800; letter-spacing: -.4px; }
+        .logo {
+            display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px;
+            color: white; font-size: 22px; background: linear-gradient(145deg, #218cff, #1452b6);
+            box-shadow: 0 8px 26px rgba(37, 139, 255, .25);
+        }
+        .brand small { display: block; color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: 2px; margin-top: 3px; }
+        .nav-links { display: flex; align-items: center; gap: 27px; color: #bdcce0; font-size: 13px; font-weight: 650; }
+        .nav-links a:hover { color: white; }
+        .nav-cta { padding: 11px 16px; border: 1px solid #2c8eff; border-radius: 9px; color: white !important; background: rgba(37,139,255,.12); }
+        .hero { padding: 78px 0 48px; display: grid; grid-template-columns: 1.15fr .85fr; align-items: center; gap: 44px; }
+        .eyebrow { display: inline-flex; align-items: center; gap: 9px; color: #75c9ff; border: 1px solid #214d75; background: rgba(29, 108, 173, .12); padding: 8px 12px; border-radius: 99px; font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
+        .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px rgba(69,214,164,.75); }
+        h1 { margin: 22px 0 18px; max-width: 720px; font-size: clamp(40px, 5.5vw, 67px); line-height: 1.04; letter-spacing: -2.6px; }
+        h1 span { background: linear-gradient(90deg, #57b8ff, #54e0ed); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .hero-copy { max-width: 610px; color: #a9bbd0; line-height: 1.8; font-size: 16px; }
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 13px; margin-top: 28px; }
+        .btn { display: inline-flex; justify-content: center; align-items: center; gap: 9px; padding: 14px 19px; border-radius: 10px; font-size: 13px; font-weight: 800; transition: transform .2s, border-color .2s; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background: linear-gradient(110deg, #278fff, #1769d7); color: white; box-shadow: 0 10px 28px rgba(22,105,215,.22); }
+        .btn-secondary { border: 1px solid #2b435c; background: rgba(13,27,45,.75); color: #dce9f8; }
+        .hero-art { min-height: 320px; display: grid; place-items: center; position: relative; }
+        .orbit { position: absolute; width: min(340px, 90%); aspect-ratio: 1; border: 1px solid rgba(63, 157, 255, .23); border-radius: 50%; }
+        .orbit:before, .orbit:after { content: ""; position: absolute; border: 1px dashed rgba(69,213,245,.23); border-radius: 50%; inset: 25px; }
+        .orbit:after { inset: 55px; border-style: solid; border-color: rgba(63,157,255,.18); }
+        .shield {
+            width: 150px; height: 175px; display: grid; place-items: center; font-size: 66px;
+            background: linear-gradient(155deg, rgba(44,148,255,.25), rgba(18,54,93,.45));
+            border: 1px solid rgba(80,178,255,.5); clip-path: polygon(50% 0, 92% 15%, 87% 66%, 50% 100%, 13% 66%, 8% 15%);
+            filter: drop-shadow(0 0 35px rgba(37,139,255,.3));
+        }
+        .float-tag { position: absolute; padding: 11px 14px; border-radius: 11px; border: 1px solid #244664; background: rgba(10,25,42,.92); color: #c9e2f8; font-size: 11px; box-shadow: 0 12px 30px rgba(0,0,0,.2); }
+        .float-tag strong { color: var(--green); display: block; font-size: 12px; margin-bottom: 3px; }
+        .tag-one { top: 42px; right: 0; } .tag-two { bottom: 35px; left: 0; }
+        .section-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin: 20px 0 23px; }
+        .section-kicker { color: #55b8ff; text-transform: uppercase; font-size: 10px; letter-spacing: 2px; font-weight: 850; }
+        h2 { margin: 8px 0 0; font-size: clamp(24px, 3vw, 32px); letter-spacing: -.7px; }
+        .section-head p { margin: 0; color: var(--muted); font-size: 13px; }
+        .modules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; padding-bottom: 60px; }
+        .module {
+            min-height: 255px; padding: 25px; border-radius: 16px; border: 1px solid var(--line);
+            background: linear-gradient(145deg, rgba(16,34,57,.94), rgba(9,23,39,.94));
+            position: relative; overflow: hidden; transition: transform .2s, border-color .2s;
+        }
+        .module:hover { transform: translateY(-4px); border-color: #347fbd; }
+        .module:after { content: ""; position: absolute; width: 140px; height: 140px; border-radius: 50%; background: rgba(37,139,255,.08); right: -55px; top: -65px; }
+        .module-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 13px; background: rgba(37,139,255,.13); border: 1px solid rgba(57,151,255,.28); font-size: 23px; margin-bottom: 22px; }
+        .module h3 { font-size: 18px; margin: 0 0 10px; }
+        .module p { color: #9fb2c9; font-size: 13px; line-height: 1.7; min-height: 45px; margin: 0 0 20px; }
+        .module-link { display: inline-flex; align-items: center; gap: 8px; color: #66beff; font-size: 12px; font-weight: 850; }
+        .module-link span { transition: transform .2s; } .module:hover .module-link span { transform: translateX(4px); }
+        .bottom-strip { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px 25px; margin-bottom: 45px; border: 1px solid #1d3c56; border-radius: 14px; background: rgba(11,29,47,.75); }
+        .bottom-strip strong { display: block; font-size: 14px; margin-bottom: 5px; }
+        .bottom-strip p { color: var(--muted); margin: 0; font-size: 12px; line-height: 1.6; }
+        footer { border-top: 1px solid rgba(139,178,217,.13); padding: 22px 0 28px; color: #758ba4; font-size: 11px; display: flex; justify-content: space-between; gap: 16px; }
+        @media (max-width: 850px) {
+            .hero { grid-template-columns: 1fr; padding-top: 55px; gap: 5px; }
+            .hero-art { min-height: 290px; }
+            .modules { grid-template-columns: 1fr 1fr; }
+            .nav-links { gap: 14px; }
+        }
+        @media (max-width: 600px) {
+            .shell { width: calc(100% - 30px); }
+            nav { min-height: 70px; align-items: flex-start; padding: 15px 0; flex-direction: column; gap: 14px; }
+            .nav-links { width: 100%; flex-wrap: wrap; gap: 14px 18px; font-size: 12px; }
+            h1 { letter-spacing: -1.6px; }
+            .hero { padding-top: 38px; }
+            .hero-art { min-height: 255px; }
+            .orbit { width: 245px; }
+            .shield { width: 115px; height: 138px; font-size: 52px; }
+            .tag-one { right: -2px; top: 22px; } .tag-two { left: -2px; bottom: 20px; }
+            .modules { grid-template-columns: 1fr; }
+            .section-head { align-items: flex-start; flex-direction: column; }
+            .bottom-strip { align-items: flex-start; flex-direction: column; }
+            footer { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-wrap">
+        <nav class="shell" aria-label="Main navigation">
+            <a class="brand" href="{{ url_for('home') }}">
+                <span class="logo" aria-hidden="true">⬡</span>
+                <span>CYBERSHIELD<small>SECURITY COMMAND CENTER</small></span>
+            </a>
+            <div class="nav-links">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('auth.login') }}">Login Tracker</a>
+                <a href="{{ url_for('link_analyzer.scanner_home') }}">Link &amp; QR Analyser</a>
+                <a href="{{ url_for('news.news_home') }}">News &amp; Updates</a>
+                <a class="nav-cta" href="{{ url_for('auth.register') }}">Get Started ↗</a>
+            </div>
+        </nav>
+    </div>
+
+    <main class="shell">
+        <section class="hero">
+            <div>
+                <div class="eyebrow"><span class="pulse"></span> Personal Cybersecurity Toolkit</div>
+                <h1>Stay ahead of<br>digital <span>threats.</span></h1>
+                <p class="hero-copy">
+                    A unified security workspace to explore login behaviour, inspect suspicious links and QR codes,
+                    and keep up with important cybersecurity updates — all in one place.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Open Login Tracker <span>→</span></a>
+                    <a class="btn btn-secondary" href="{{ url_for('link_analyzer.scanner_home') }}">Analyse a Link ↗</a>
+                </div>
+            </div>
+            <div class="hero-art" aria-label="Cybersecurity shield illustration">
+                <div class="orbit"></div>
+                <div class="shield" aria-hidden="true">🛡️</div>
+                <div class="float-tag tag-one"><strong>● Protection tools</strong>Three modules. One workspace.</div>
+                <div class="float-tag tag-two"><strong>SECURITY FIRST</strong>Think before you click.</div>
+            </div>
+        </section>
+
+        <section aria-labelledby="modules-heading">
+            <div class="section-head">
+                <div>
+                    <div class="section-kicker">Explore the platform</div>
+                    <h2 id="modules-heading">Your security toolkit</h2>
+                </div>
+                <p>Choose a module to get started <span aria-hidden="true">↘</span></p>
+            </div>
+
+            <div class="modules">
+                <article class="module">
+                    <div class="module-icon" aria-hidden="true">⌁</div>
+                    <h3>Login Tracker</h3>
+                    <p>Review login attempts and explore typing-pattern signals that can help flag unusual behaviour.</p>
+                    <a class="module-link" href="{{ url_for('auth.login') }}">Open login tracker <span>→</span></a>
+                </article>
+                <article class="module">
+                    <div class="module-icon" aria-hidden="true">⌕</div>
+                    <h3>Link &amp; QR Analyser</h3>
+                    <p>Check URLs for suspicious patterns and analyse QR codes before deciding whether to visit a link.</p>
+                    <a class="module-link" href="{{ url_for('link_analyzer.scanner_home') }}">Analyse links and QR codes <span>→</span></a>
+                </article>
+                <article class="module">
+                    <div class="module-icon" aria-hidden="true">▤</div>
+                    <h3>Cybersecurity News</h3>
+                    <p>Read security headlines and updates from external cybersecurity news and advisory feeds.</p>
+                    <a class="module-link" href="{{ url_for('news.news_home') }}">Read latest updates <span>→</span></a>
+                </article>
+            </div>
+        </section>
+
+        <section class="bottom-strip">
+            <div>
+                <strong>Build safer digital habits.</strong>
+                <p>Use these tools as an educational aid. Automated checks can produce false positives and are not a guarantee that a link or login is safe.</p>
+            </div>
+            <a class="btn btn-secondary" href="{{ url_for('auth.register') }}">Create a demo account ↗</a>
+        </section>
+    </main>
+
+    <footer class="shell">
+        <span>© CyberShield · Cybersecurity learning project</span>
+        <span>Stay curious. Stay cautious. Stay secure.</span>
+    </footer>
+</body>
+</html>

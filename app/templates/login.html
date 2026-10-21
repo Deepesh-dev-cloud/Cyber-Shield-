@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Cyber Shield | Secure Login</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            min-height: 100vh;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            background: #f4f7fb;
+
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+
+        .login-container {
+
+            width: 100%;
+
+            max-width: 520px;
+
+            background: white;
+
+            padding: 40px;
+
+            border-radius: 18px;
+
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.10);
+        }
+
+
+        .logo {
+
+            text-align: center;
+
+            margin-bottom: 30px;
+        }
+
+
+        .shield {
+
+            font-size: 50px;
+
+            margin-bottom: 10px;
+        }
+
+
+        .logo h1 {
+
+            margin: 0;
+
+            font-size: 42px;
+
+            color: #111827;
+        }
+
+
+        .logo p {
+
+            margin-top: 10px;
+
+            color: #64748b;
+
+            font-size: 18px;
+        }
+
+
+        .form-group {
+
+            margin-bottom: 22px;
+        }
+
+
+        label {
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-size: 17px;
+
+            color: #111827;
+
+            font-weight: 500;
+        }
+
+
+        input[type="text"],
+        input[type="password"] {
+
+            width: 100%;
+
+            padding: 15px;
+
+            border: 1px solid #cbd5e1;
+
+            border-radius: 8px;
+
+            font-size: 16px;
+
+            outline: none;
+
+            transition: 0.2s;
+        }
+
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+
+            border-color: #3b82f6;
+
+            box-shadow:
+                0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+
+        button {
+
+            width: 100%;
+
+            padding: 15px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #3b82f6;
+
+            color: white;
+
+            font-size: 18px;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+
+        button:hover {
+
+            background: #2563eb;
+        }
+
+
+        .security-status {
+
+            text-align: center;
+
+            margin-top: 25px;
+
+            color: #64748b;
+
+            font-size: 15px;
+        }
+
+
+        .register-link {
+
+            text-align: center;
+
+            margin-top: 18px;
+
+            font-size: 14px;
+        }
+
+
+        .register-link a {
+
+            color: #3b82f6;
+
+            text-decoration: none;
+        }
+
+
+        .register-link a:hover {
+
+            text-decoration: underline;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="login-container">
+
+
+    <div class="logo">
+
+        <div class="shield">
+            🛡️
+        </div>
+
+        <h1>
+            Cyber Shield
+        </h1>
+
+        <p>
+            Secure Authentication Portal
+        </p>
+
+    </div>
+
+
+    <!-- LOGIN FORM -->
+
+    <form
+        id="loginForm"
+        method="POST"
+        action="/login"
+    >
+
+
+        <!-- USERNAME -->
+
+        <div class="form-group">
+
+            <label for="username">
+                Username
+            </label>
+
+            <input
+                type="text"
+                id="username"
+                name="username"
+                autocomplete="username"
+                required
+            >
+
+        </div>
+
+
+        <!-- PASSWORD -->
+
+        <div class="form-group">
+
+            <label for="password">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                autocomplete="current-password"
+                required
+            >
+
+        </div>
+
+
+        <!-- BEHAVIORAL DATA -->
+
+        <input
+            type="hidden"
+            id="typing_speed"
+            name="typing_speed"
+        >
+
+
+        <input
+            type="hidden"
+            id="average_key_interval"
+            name="average_key_interval"
+        >
+
+
+        <input
+            type="hidden"
+            id="typing_variation"
+            name="typing_variation"
+        >
+
+
+        <!-- LOGIN BUTTON -->
+
+        <button type="submit">
+            Secure Login
+        </button>
+
+
+    </form>
+
+
+    <div class="security-status">
+
+        🔐 Behavioral security monitoring enabled
+
+    </div>
+
+
+    <div class="register-link">
+
+        Don't have an account?
+
+        <a href="/register">
+            Register
+        </a>
+
+    </div>
+
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- BEHAVIORAL KEYSTROKE TRACKING -->
+<!-- ================================================= -->
+
+<script>
+
+
+    const loginForm =
+        document.getElementById("loginForm");
+
+
+    const usernameInput =
+        document.getElementById("username");
+
+
+    const passwordInput =
+        document.getElementById("password");
+
+
+    const typingSpeedInput =
+        document.getElementById("typing_speed");
+
+
+    const averageIntervalInput =
+        document.getElementById(
+            "average_key_interval"
+        );
+
+
+    const typingVariationInput =
+        document.getElementById(
+            "typing_variation"
+        );
+
+
+    // -----------------------------------------------
+    // Variables
+    // -----------------------------------------------
+
+    let typingStartTime = null;
+
+    let lastKeyTime = null;
+
+    let keyIntervals = [];
+
+    let keyPressCount = 0;
+
+
+    // -----------------------------------------------
+    // Record a key press
+    // -----------------------------------------------
+
+    function recordKeyPress(event) {
+
+
+        const currentTime =
+            performance.now();
+
+
+        // Start timer with first key
+
+        if (typingStartTime === null) {
+
+            typingStartTime =
+                currentTime;
+        }
+
+
+        // Calculate time between keys
+
+        if (lastKeyTime !== null) {
+
+
+            const interval =
+                currentTime - lastKeyTime;
+
+
+            keyIntervals.push(
+                interval
+            );
+
+        }
+
+
+        lastKeyTime =
+            currentTime;
+
+
+        keyPressCount++;
+
+    }
+
+
+    // -----------------------------------------------
+    // Track username typing
+    // -----------------------------------------------
+
+    usernameInput.addEventListener(
+        "keydown",
+        recordKeyPress
+    );
+
+
+    // -----------------------------------------------
+    // Track password typing
+    // -----------------------------------------------
+
+    passwordInput.addEventListener(
+        "keydown",
+        recordKeyPress
+    );
+
+
+    // -----------------------------------------------
+    // Before form submission
+    // -----------------------------------------------
+
+    loginForm.addEventListener(
+        "submit",
+        function () {
+
+
+            // Make sure typing happened
+
+            if (typingStartTime === null) {
+
+                return;
+
+            }
+
+
+            const endTime =
+                performance.now();
+
+
+            // ---------------------------------------
+            // Calculate duration
+            // ---------------------------------------
+
+            const durationSeconds =
+                (
+                    endTime -
+                    typingStartTime
+                ) / 1000;
+
+
+            const durationMinutes =
+                durationSeconds / 60;
+
+
+            // ---------------------------------------
+            // Calculate WPM
+            // ---------------------------------------
+
+            const words =
+                keyPressCount / 5;
+
+
+            let wpm = 0;
+
+
+            if (durationMinutes > 0) {
+
+                wpm =
+                    words /
+                    durationMinutes;
+
+            }
+
+
+            // ---------------------------------------
+            // Calculate average key interval
+            // ---------------------------------------
+
+            let averageInterval = 0;
+
+
+            if (
+                keyIntervals.length > 0
+            ) {
+
+
+                const totalInterval =
+                    keyIntervals.reduce(
+                        function (
+                            sum,
+                            value
+                        ) {
+
+                            return sum + value;
+
+                        },
+                        0
+                    );
+
+
+                averageInterval =
+                    totalInterval /
+                    keyIntervals.length;
+
+            }
+
+
+            // ---------------------------------------
+            // Calculate typing variation
+            // ---------------------------------------
+
+            let variation = 0;
+
+
+            if (
+                keyIntervals.length > 1
+            ) {
+
+
+                const squaredDifferences =
+                    keyIntervals.map(
+                        function (interval) {
+
+                            return Math.pow(
+                                interval -
+                                averageInterval,
+                                2
+                            );
+
+                        }
+                    );
+
+
+                const variance =
+                    squaredDifferences.reduce(
+                        function (
+                            sum,
+                            value
+                        ) {
+
+                            return sum + value;
+
+                        },
+                        0
+                    ) /
+                    keyIntervals.length;
+
+
+                variation =
+                    Math.sqrt(
+                        variance
+                    );
+
+            }
+
+
+            // ---------------------------------------
+            // Put values into hidden fields
+            // ---------------------------------------
+
+            typingSpeedInput.value =
+                wpm.toFixed(2);
+
+
+            averageIntervalInput.value =
+                averageInterval.toFixed(2);
+
+
+            typingVariationInput.value =
+                variation.toFixed(2);
+
+
+            // ---------------------------------------
+            // Console debugging
+            // ---------------------------------------
+
+            console.log(
+                "========== CYBER SHIELD =========="
+            );
+
+
+            console.log(
+                "Key Press Count:",
+                keyPressCount
+            );
+
+
+            console.log(
+                "Typing Duration:",
+                durationSeconds.toFixed(2),
+                "seconds"
+            );
+
+
+            console.log(
+                "Typing Speed:",
+                wpm.toFixed(2),
+                "WPM"
+            );
+
+
+            console.log(
+                "Average Key Interval:",
+                averageInterval.toFixed(2),
+                "ms"
+            );
+
+
+            console.log(
+                "Typing Variation:",
+                variation.toFixed(2),
+                "ms"
+            );
+
+
+            console.log(
+                "==================================="
+            );
+
+
+    });
+
+
+</script>
+
+
+</body>
+
+</html>
