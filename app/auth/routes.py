@@ -1,6 +1,11 @@
 
+from ipaddress import ip_address as parse_ip
+
 from flask import Blueprint, render_template, request
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash,
+)
 
 from app.database.db import db
 from app.database.models import User
@@ -12,11 +17,37 @@ auth = Blueprint("auth", __name__)
 
 
 def get_client_ip():
+    """
+    Use CF-Connecting-IP only when the application is
+    configured to receive requests through a trusted
+    Cloudflare proxy.
 
-   cloudflare_ip = request.headers.get("CF-Connecting-IP")
-   if cloudflare_ip:
-        return cloudflare_ip.strip()
-   return request.remote_addr or "Unknown"
+    Otherwise, use the direct peer address. Do not
+    blindly trust X-Forwarded-For.
+    """
+    cloudflare_ip = request.headers.get("CF-Connecting-IP", "").strip()
+
+    if cloudflare_ip:
+        try:
+            # Validate that the value is a valid IP address.
+            return str(parse_ip(cloudflare_ip))
+        except ValueError:
+            pass
+
+    remote_ip = request.remote_addr
+
+    if remote_ip:
+        try:
+            return str(parse_ip(remote_ip))
+        except ValueError:
+            pass
+
+    return "Unknown"
+
+
+# -----------------------------------
+# Login
+# -----------------------------------
 
 @auth.route("/login", methods=["GET", "POST"])
 def login():
@@ -24,11 +55,9 @@ def login():
     if request.method == "GET":
         return render_template("login.html")
 
-    # 1. Get login information
     username = request.form.get("username", "").strip()
     password = request.form.get("password", "")
 
-    # 2. Get behavioral data
     typing_speed = request.form.get("typing_speed", type=float)
 
     average_key_interval = request.form.get(
@@ -41,25 +70,18 @@ def login():
         type=float
     )
 
-    # 3. Get client IP
+    # Get the client IP candidate
     ip_address = get_client_ip()
+
+    # Temporary diagnostic logs
     print("REMOTE_ADDR:", request.remote_addr)
-    print("X_FORWARDED_FOR:", request.headers.get("X-Forwarded-For"))
     print("CF_CONNECTING_IP:", request.headers.get("CF-Connecting-IP"))
+    print("Client IP selected:", ip_address)
 
-    # Temporary diagnostic logs for Render
-    print("Client IP:", ip_address)
-    print(
-        "Forwarded IP header:",
-        request.headers.get("X-Forwarded-For")
-    )
+    # Find user
+    user = User.query.filter_by(username=username).first()
 
-    # 4. Find user
-    user = User.query.filter_by(
-        username=username
-    ).first()
-
-    # 5. Validate credentials
+    # Validate credentials
     login_success = bool(
         user and check_password_hash(
             user.password_hash,
@@ -67,7 +89,7 @@ def login():
         )
     )
 
-    # 6. Save login attempt
+    # Save login attempt
     attempt = LoginAttempt(
         username=username,
         ip_address=ip_address,
@@ -80,7 +102,7 @@ def login():
     db.session.add(attempt)
     db.session.commit()
 
-    # 7. Behavioral analysis
+    # Behavioral analysis
     risk_result = None
     baseline = None
 
@@ -91,15 +113,13 @@ def login():
             login_success=True
         ).all()
 
-        # Exclude current login from the baseline
+        # Exclude current login
         previous_attempts = [
             item for item in previous_attempts
             if item.id != attempt.id
         ]
 
-        baseline = calculate_baseline(
-            previous_attempts
-        )
+        baseline = calculate_baseline(previous_attempts)
 
         if (
             baseline
@@ -113,14 +133,12 @@ def login():
                 typing_variation
             )
 
-    # 8. Return login result
+    # Return login result
     if login_success:
 
         print(
-            f"LOGIN SUCCESS | "
-            f"Username: {username} | "
-            f"IP: {ip_address} | "
-            f"WPM: {typing_speed} | "
+            f"LOGIN SUCCESS | Username: {username} | "
+            f"IP: {ip_address} | WPM: {typing_speed} | "
             f"Avg Key Interval: {average_key_interval} ms | "
             f"Variation: {typing_variation} ms"
         )
@@ -138,10 +156,8 @@ def login():
         )
 
     print(
-        f"LOGIN FAILED | "
-        f"Username: {username} | "
-        f"IP: {ip_address} | "
-        f"WPM: {typing_speed}"
+        f"LOGIN FAILED | Username: {username} | "
+        f"IP: {ip_address} | WPM: {typing_speed}"
     )
 
     return "Invalid username or password!", 401
@@ -204,7 +220,7 @@ def dashboard():
     username = latest.username
     ip_address = latest.ip_address
 
-    # Get successful attempts with complete behavioral data
+    # Successful attempts with complete behavioral data
     successful_attempts = [
         item for item in attempts
         if item.login_success
@@ -223,18 +239,14 @@ def dashboard():
         )
 
         baseline_interval = round(
-            sum(
-                item.average_key_interval
-                for item in successful_attempts
-            ) / len(successful_attempts),
+            sum(item.average_key_interval for item in successful_attempts)
+            / len(successful_attempts),
             2
         )
 
         baseline_variation = round(
-            sum(
-                item.typing_variation
-                for item in successful_attempts
-            ) / len(successful_attempts),
+            sum(item.typing_variation for item in successful_attempts)
+            / len(successful_attempts),
             2
         )
 
@@ -248,29 +260,16 @@ def dashboard():
 
     if successful_attempts and latest.login_success:
 
-        # Only calculate when the latest attempt has complete data
         if (
             latest.typing_speed is not None
             and latest.average_key_interval is not None
             and latest.typing_variation is not None
         ):
 
-            wpm_difference = abs(
-                latest.typing_speed - baseline_wpm
-            )
-
-            interval_difference = abs(
-                latest.average_key_interval - baseline_interval
-            )
-
-            variation_difference = abs(
-                latest.typing_variation - baseline_variation
-            )
-
             if baseline_wpm > 0:
-
                 wpm_percent = (
-                    wpm_difference / baseline_wpm
+                    abs(latest.typing_speed - baseline_wpm)
+                    / baseline_wpm
                 ) * 100
 
                 if wpm_percent > 50:
@@ -279,9 +278,11 @@ def dashboard():
                     risk_score += 20
 
             if baseline_interval > 0:
-
                 interval_percent = (
-                    interval_difference / baseline_interval
+                    abs(
+                        latest.average_key_interval
+                        - baseline_interval
+                    ) / baseline_interval
                 ) * 100
 
                 if interval_percent > 100:
@@ -290,9 +291,11 @@ def dashboard():
                     risk_score += 15
 
             if baseline_variation > 0:
-
                 variation_percent = (
-                    variation_difference / baseline_variation
+                    abs(
+                        latest.typing_variation
+                        - baseline_variation
+                    ) / baseline_variation
                 ) * 100
 
                 if variation_percent > 100:
