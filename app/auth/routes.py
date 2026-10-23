@@ -46,6 +46,9 @@ def login():
 
     # 3. Get client IP
     ip_address = get_client_ip()
+    print("REMOTE_ADDR:", request.remote_addr)
+    print("X_FORWARDED_FOR:", request.headers.get("X-Forwarded-For"))
+    print("CF_CONNECTING_IP:", request.headers.get("CF-Connecting-IP"))
 
     # Temporary diagnostic logs for Render
     print("Client IP:", ip_address)
