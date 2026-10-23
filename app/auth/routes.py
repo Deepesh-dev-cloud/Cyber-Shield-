@@ -12,13 +12,15 @@ auth = Blueprint("auth", __name__)
 
 
 def get_client_ip():
-    """
-    Get the client IP from Flask's remote address.
 
-    The main Flask app must configure ProxyFix correctly
-    for the trusted Render proxy before using this function.
-    """
-    return request.remote_addr or "Unknown"
+  forwarded_for = request.headers.get("X-Forwarded-For", "")
+
+  if forwarded_for:
+        # The leftmost address is the original client candidate.
+        client_ip = forwarded_for.split(",")[0].strip()
+        return client_ip
+
+  return request.remote_addr or "Unknown"
 
 
 @auth.route("/login", methods=["GET", "POST"])
