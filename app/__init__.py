@@ -1,5 +1,6 @@
 
 from flask import Flask, render_template
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.database.db import db
 from app.database.models import User
@@ -18,6 +19,14 @@ from app.news import routes as news_routes
 def create_app():
     app = Flask(__name__)
 
+    # Trust one configured reverse proxy for client IP and HTTPS scheme.
+    # Verify the proxy chain before enabling this in production.
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app,
+        x_for=1,
+        x_proto=1
+    )
+
     # Database configuration
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///cybershield.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -25,7 +34,7 @@ def create_app():
     # Initialize database
     db.init_app(app)
 
-    # Register existing login system
+    # Register login and registration routes
     app.register_blueprint(auth)
 
     # Register Link / QR Analyser
